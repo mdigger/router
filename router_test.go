@@ -276,6 +276,7 @@ func TestMixPaths(t *testing.T) {
 			t.Errorf("не совпало с ожиданием: %v", i)
 		}
 		for _, param := range params {
+			_ = param.String()
 			if param.Value != params.Get(param.Key) {
 				t.Errorf("bad param get by name: %v", param.Key)
 			}
