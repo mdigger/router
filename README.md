@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/mdigger/router?status.svg)](https://godoc.org/github.com/mdigger/router)
 [![Build Status](https://travis-ci.org/mdigger/router.svg)](https://travis-ci.org/mdigger/router)
-[![Coverage Status](https://coveralls.io/repos/mdigger/router/badge.svg?branch=master&service=github)](https://coveralls.io/github/mdigger/router?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/mdigger/router/badge.svg?branch=master)](https://coveralls.io/github/mdigger/router?branch=master)
 
 router содержит достаточно простой универсальный "маршрутизатор",
 который является заготовкой для замены `http.ServeMux` с поддержкой именованных
