@@ -26,24 +26,25 @@ router содержит достаточно простой универсаль
 Библиотека достаточно абстрактна и не привязана впрямую к `http`. Так что можно 
 использовать не только по ее прямому предназначению:
 
-	package main
+```go
+package main
 
-	import (
-		"fmt"
-		"github.com/mdigger/router"
-	)
+import (
+	"fmt"
+	"github.com/mdigger/router"
+)
 
-	func main() {
-		var paths router.Paths
-		paths.Add("/users", "usersList")
-		paths.Add("/users/:name", "userName")
-		paths.Add("/users/me", "userMe")
+func main() {
+	var paths router.Paths
+	paths.Add("/users", "usersList")
+	paths.Add("/users/:name", "userName")
+	paths.Add("/users/me", "userMe")
 
-		name, params := paths.Lookup("/users/mdigger")
-		fmt.Printf("%v: %v\n", name, params.Get("name"))
-		// Output: userName: mdigger
-	}
-
+	name, params := paths.Lookup("/users/mdigger")
+	fmt.Printf("%v: %v\n", name, params.Get("name"))
+	// Output: userName: mdigger
+}
+```
 
 ### Отмазка от каких-либо гарантий
 
