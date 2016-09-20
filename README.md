@@ -1,30 +1,24 @@
-# Простой маршрутизатор с поддержкой именованных параметров
+# A simple router with support for named parameters
 
 [![GoDoc](https://godoc.org/github.com/mdigger/router?status.svg)](https://godoc.org/github.com/mdigger/router)
 [![Build Status](https://travis-ci.org/mdigger/router.svg)](https://travis-ci.org/mdigger/router)
 [![Coverage Status](https://coveralls.io/repos/github/mdigger/router/badge.svg?branch=master)](https://coveralls.io/github/mdigger/router?branch=master)
 
-router содержит достаточно простой универсальный "маршрутизатор",
-который является заготовкой для замены `http.ServeMux` с поддержкой именованных
-параметров в пути.
+router contains a fairly simple generic "router", which is the workpiece to replace `http.ServeMux` with support for named parameters in the path.
 
-Текущая реализация позволяет ассоциировать с именованными путями любый
-объекты, не только обработчики HTTP-запросов. Для именованных параметров
-используется маркер `:`, а для динамических — `*`. Хотя, это все
-настраиваемое. Естественно, статические пути без параметров тоже
-поддерживаются.
+The current implementation allows you to associate with named routes any objects not only handlers of HTTP requests. For named parameters the marker is used `:`, dynamic — `*`. Though, it's all custom. Of course, static path without any parameters too supported.
 
-Примеры задаваемых путей:
+Examples of questions ways:
 
 	/user/:name
 	/user/test
 	/files/*filename
 	/repos/:owner/:repo/pulls
 
-### Как использовать?
+### How to use?
 
-Библиотека достаточно абстрактна и не привязана впрямую к `http`. Так что можно 
-использовать не только по ее прямому предназначению:
+The library is rather abstract and is not tied directly to `http`. So it is possible 
+to use not only for its direct purpose:
 
 ```go
 package main
@@ -46,13 +40,6 @@ func main() {
 }
 ```
 
-### Отмазка от каких-либо гарантий
+### Excuse from any warranty
 
-Раньше это было составной частью библиотеки <github.com/mdigger/rest>, где,
-по большей части, вся эта функциональность была просто скрыта и не доступна
-для самостоятельного использования. Но она потребовалась мне для некоторых
-внутренних проектов и я решил вынести ее в отдельную библиотеку. Я не
-гарантирую, что библиотека не будет время от времени меняться под мои
-собственные нужды, поэтому, если вы хотите ее использовать в своих проектах,
-то лучшим способом является забрать ее себе целиком и дальше делать с ней
-все, что хотите.
+Previously, it was an integral part of the library <github.com/mdigger/rest> where, for the most part, all of this functionality was just hidden and not available for self-use. But it took me for some internal projects and I decided to submit it in a separate library. I don't guarantee that the library will from time to time to change my their own needs, so if you want to use it in their projects the best way is to take it entirely and continue to do with it everything that you want.

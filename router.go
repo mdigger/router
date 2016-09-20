@@ -8,24 +8,22 @@ import (
 )
 
 var (
-	// PathDelimeter определяет разделитель пути.
+	// PathDelimeter defines the path separator.
 	PathDelimeter = "/"
-	// NamedParamFlag используется для определения именованного параметра
-	// в пути.
+	// NamedParamFlag is used to define a named parameter in the path.
 	NamedParamFlag = byte(':')
-	// CatchAllParamFlag используется для определения динамического именованного
-	// параметра пути.
+	// CatchAllParamFlag is used to define a dynamic named parameter in route.
 	CatchAllParamFlag = byte('*')
-	// Splitter нормализует путь и возвращает его в виде частей. При желании, вы
-	// можете заменить эту функцию на свою.
+	// Splitter normalizes the path and returns it in the form of parts. If you
+	// want, you can replace this function on his own.
 	Splitter = func(url string) []string {
 		return strings.SplitAfter(strings.TrimPrefix(url, PathDelimeter),
 			PathDelimeter)
 	}
 )
 
-// Paths описывает структуру для быстрого выбора обработчиков по пути запроса.
-// Поддерживает как статические пути, так и пути с параметрами.
+// Paths describes the structure for quick selection handler for request path.
+// Supports both a static route and path parameters.
 type Paths struct {
 	// хранилище статических путей, без параметров;
 	// в качестве ключа используется полный путь
@@ -39,26 +37,25 @@ type Paths struct {
 	catchAll uint16
 }
 
-// Add добавляет новый обработчик для указанного пути. В описании пути можно
-// использовать именованные параметры (начинаются с символа ':') и завершающий
-// именованный параметр (начинается с '*'), который указывает, что URL может
-// быть длиннее. В последнем случае вся остальная часть пути будет включена
-// в данный параметр. Параметр со звездочкой, если указан, должен быть самым
-// последним параметром пути.
+// Add adds a new handler for the specified path. In the description of the way
+// to use named parameters (starts with': 'character) and the final a named
+// parameter (starts with '*'), which indicates that the URL can longer. In the
+// latter case all the rest of the path will be included in this setting. A
+// starred parameter, if specified, must be the the last parameter of the path.
 //
-// Возвращает ошибку, если обработчик не определен (nil), если количество
-// элементов пути в URL больше 32768 или параметр со звездочкой используется не
-// в самом последнем элементе пути.
+// Returns an error if the handler is not defined (nil), if the number of
+// elements of a URL path greater than 32768 or option with an asterisk is not
+// used in the last path element.
 //
-// ВНИМАНИЕ! При добавлении пути не проверяется его уникальность с точки зрения
-// именованных параметров. Поэтому вполне возможно добавить два разных
-// обработчика для одного и того же пути. Например:
-// 	/:user/:id/:name
-// 	/:user/:name/:id
-// В этом случае ошибки не произойдет: просто вызываться будет первый
-// добавленный обработчик, а другой никогда не будет вызван.
+// ATTENTION! When adding a path is not verified by its uniqueness from the
+// point of view named parameters. Therefore, it is possible to add two
+// different handler for the same path. For example:
+//	/:user/:id/:name
+//	/:user/:name/:id
+// In this case, the error will not happen, just volunteer to be the first
+// added the handler, and the other will never be called.
 //
-// С другой стороны, совершенно корректно отрабатывается следующая ситуация:
+// On the other hand, absolutely correctly fulfilled the following situation:
 // 	/:user/:name
 // 	/:user/test
 func (r *Paths) Add(url string, handler interface{}) error {
@@ -116,8 +113,8 @@ func (r *Paths) Add(url string, handler interface{}) error {
 	return nil
 }
 
-// Lookup возвращает обработчик и список именованных параметров с их значениям.
-// Если подходящего обработчика не найдено, то возвращается nil.
+// Lookup returns the handler and the list of named parameters with their
+// values. If a suitable handler is found, it returns nil.
 func (r *Paths) Lookup(url string) (interface{}, Params) {
 	parts := Splitter(url) // нормализуем путь и разбиваем его на части
 	// сначала ищем среди статических путей; если статические пути не
@@ -205,8 +202,8 @@ func (r *Paths) Lookup(url string) (interface{}, Params) {
 	return nil, nil
 }
 
-// Path возвращает список элементов пути, связанных с данным обработчиком.
-// Если обработчик связан с несколькими путями, то вернется самый первый.
+// Path returns a list of path elements associated with this processor.
+// If the handler is associated with multiple paths, return the first.
 func (r *Paths) Path(handler interface{}) []string {
 	// перебираем статические пути
 	for url, h := range r.static {

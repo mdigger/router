@@ -1,27 +1,25 @@
-// Package router содержит достаточно простой универсальный "маршрутизатор",
-// который является заготовкой для замены http.ServeMux с поддержкой именованных
-// параметров в пути.
+// Package router contains a fairly simple generic "router", which is the
+// workpiece for replacement http.ServeMux with support for named parameters in
+// the path.
 //
-// Текущая реализация позволяет ассоциировать с именованными путями любый
-// объекты, не только обработчики HTTP-запросов. Для именованных параметров
-// используется маркер `:`, а для динамических — `*`. Хотя, это все
-// настраиваемое. Естественно, статические пути без параметров тоже
-// поддерживаются.
+// The current implementation allows you to associate with named routes any
+// objects not only handlers of HTTP requests. For named parameters used the
+// marker `:`, dynamic — `*`. Though, it's all custom. Of course, static path
+// without any parameters too supported.
 //
-// Примеры задаваемых путей:
+// Examples of questions ways:
 // 	/user/:name
 //	/user/test
 // 	/files/*filename
 // 	/repos/:owner/:repo/pulls
 //
-// Отмазка от каких-либо гарантий
+// Excuse from any warranty
 //
-// Раньше это было составной частью библиотеки github.com/mdigger/rest, где,
-// по большей части, вся эта функциональность была просто скрыта и не доступна
-// для самостоятельного использования. Но она потребовалась мне для некоторых
-// внутренних проектов и я решил вынести ее в отдельную библиотеку. Я не
-// гарантирую, что библиотека не будет время от времени меняться под мои
-// собственные нужды, поэтому, если вы хотите ее использовать в своих проектах,
-// то лучшим способом является забрать ее себе целиком и дальше делать с ней
-// все, что хотите.
+// Previously, it was an integral part of the library github.com/mdigger/rest
+// where, for the most part, all of this functionality was just hidden and not
+// available for self-use. But it took me for some internal projects and I
+// decided to submit it in a separate library. I don't guarantee that the
+// library will from time to time to change my their own needs, so if you want
+// to use it in their projects the best way is to take it entirely and continue
+// to do with it everything that you want.
 package router
