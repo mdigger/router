@@ -171,6 +171,11 @@ func (r *Paths) Lookup(url string) (interface{}, Params) {
 		params:
 			// перебираем все части пути, заданные в обработчике
 			for i, part := range record.parts {
+				if len(part) == 0 {
+					// пропускаем пустые элементы, которые могут образовываться,
+					// если путь заканчивается на "/"
+					continue
+				}
 				switch part[0] {
 				case byte(':'): // это одиночный параметр
 					params = append(params, Param{
