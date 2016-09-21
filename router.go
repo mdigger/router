@@ -11,16 +11,16 @@ var (
 	// PathDelimeter defines the path separator.
 	PathDelimeter = "/"
 	// NamedParamFlag is used to define a named parameter in the path.
-	NamedParamFlag = byte(':')
+	NamedParamFlag = ":"
 	// CatchAllParamFlag is used to define a dynamic named parameter in route.
-	CatchAllParamFlag = byte('*')
-	// Splitter normalizes the path and returns it in the form of parts. If you
-	// want, you can replace this function on his own.
-	Splitter = func(url string) []string {
-		return strings.SplitAfter(strings.TrimPrefix(url, PathDelimeter),
-			PathDelimeter)
-	}
+	CatchAllParamFlag = "*"
 )
+
+// splitter normalizes the path and returns it in the form of parts. If you
+// want, you can replace this function on his own.
+func splitter(url string) []string {
+	return strings.Split(strings.TrimPrefix(url, PathDelimeter), PathDelimeter)
+}
 
 // Paths describes the structure for quick selection handler for request path.
 // Supports both a static route and path parameters.
@@ -62,7 +62,7 @@ func (r *Paths) Add(url string, handler interface{}) error {
 	if handler == nil {
 		return errors.New("nil handler")
 	}
-	parts := Splitter(url) // нормализуем путь и разбиваем его на части
+	parts := splitter(url) // нормализуем путь и разбиваем его на части
 	// проверяем, что количество получившихся частей не превышает максимально
 	// поддерживаемое количество
 	level := uint16(len(parts)) // всего элементов пути
@@ -72,13 +72,9 @@ func (r *Paths) Add(url string, handler interface{}) error {
 	// считаем количество параметров в определении пути
 	var params uint16
 	for i, value := range parts {
-		if value == "" {
-			continue // пропускаем пустые пути
-		}
-		switch value[0] {
-		case NamedParamFlag:
+		if strings.HasPrefix(value, NamedParamFlag) {
 			params++ // увеличиваем счетчик параметров
-		case CatchAllParamFlag:
+		} else if strings.HasPrefix(value, CatchAllParamFlag) {
 			// такой параметр должен быть самым последним в определении путей
 			if uint16(i) != level-1 {
 				return errors.New("catch-all parameter must be last")
@@ -96,7 +92,7 @@ func (r *Paths) Add(url string, handler interface{}) error {
 		if r.static == nil {
 			r.static = make(map[string]interface{})
 		}
-		r.static[strings.Join(parts, "")] = handler
+		r.static[strings.Join(parts, PathDelimeter)] = handler
 		return nil
 	}
 	// запоминаем максимальное количество элементов пути во всех определениях
@@ -116,11 +112,11 @@ func (r *Paths) Add(url string, handler interface{}) error {
 // Lookup returns the handler and the list of named parameters with their
 // values. If a suitable handler is found, it returns nil.
 func (r *Paths) Lookup(url string) (interface{}, Params) {
-	parts := Splitter(url) // нормализуем путь и разбиваем его на части
+	parts := splitter(url) // нормализуем путь и разбиваем его на части
 	// сначала ищем среди статических путей; если статические пути не
 	// определены, то пропускаем проверку
 	if r.static != nil {
-		if handler, ok := r.static[strings.Join(parts, "")]; ok {
+		if handler, ok := r.static[strings.Join(parts, PathDelimeter)]; ok {
 			return handler, nil
 		}
 	}
@@ -168,35 +164,25 @@ func (r *Paths) Lookup(url string) (interface{}, Params) {
 			// если ранее они были не пустые от другого обработчика, то
 			// сбрасываем их
 			var params Params
-		params:
 			// перебираем все части пути, заданные в обработчике
 			for i, part := range record.parts {
-				if len(part) == 0 {
-					// пропускаем пустые элементы, которые могут образовываться,
-					// если путь заканчивается на "/"
-					continue
-				}
-				switch part[0] {
-				case byte(':'): // это одиночный параметр
+				if strings.HasPrefix(part, NamedParamFlag) {
+					// это одиночный параметр
 					params = append(params, Param{
-						// убираем ':' в начале и возможный '/' в конце
-						Key: strings.TrimSuffix(part[1:], PathDelimeter),
-						// элемент пути без возможного '/' в конце
-						Value: strings.TrimSuffix(parts[i], PathDelimeter),
+						Key:   strings.TrimPrefix(part, NamedParamFlag),
+						Value: parts[i],
 					})
-					continue // переходим к следующему элементу пути
-				case byte('*'): // это параметр, который заберет все
+				} else if strings.HasPrefix(part, CatchAllParamFlag) {
+					// это параметр, который заберет все
 					params = append(params, Param{
-						Key: part[1:], // исключаем '*' из имени
+						Key: strings.TrimPrefix(part, CatchAllParamFlag),
 						// добавляем весь оставшийся путь
-						Value: strings.Join(parts[i:], ""),
+						Value: strings.Join(parts[i:], PathDelimeter),
 					})
-					break params // больше ловить нечего — нашли
-				}
-				// статическая часть пути не совпадает с запрашиваемой
-				if part != parts[i] {
-					// переходим к следующему обработчику
-					continue nextRecord
+					break // больше ловить нечего — нашли
+				} else if part != parts[i] {
+					// статическая часть пути не совпадает с запрашиваемой
+					continue nextRecord // переходим к следующему обработчику
 				}
 			}
 			// возвращаем найденный обработчик и заполненные параметры
@@ -213,7 +199,7 @@ func (r *Paths) Path(handler interface{}) []string {
 	// перебираем статические пути
 	for url, h := range r.static {
 		if h == handler {
-			return Splitter(url) // нашли нужный адрес - возвращаем элементы пути
+			return splitter(url)
 		}
 	}
 	// перебираем все пути с параметрами
@@ -221,7 +207,7 @@ func (r *Paths) Path(handler interface{}) []string {
 		for _, record := range records {
 			// сравниваем адреса методов
 			if handler == record.handler {
-				return record.parts // возвращаем элементы пути
+				return record.parts
 			}
 		}
 	}

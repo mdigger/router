@@ -396,7 +396,7 @@ func testRoutersWithPaths(t *testing.T, routers []string, tests []TestStruct) {
 	}
 	for i, url := range routers {
 		paths := r.Path(i)
-		path := "/" + strings.Join(paths, "")
+		path := "/" + strings.Join(paths, PathDelimeter)
 		if url != path {
 			t.Errorf("[%v] bad path: %v против %v", i, url, path)
 		}
