@@ -48,15 +48,12 @@ func (m *ServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	var path = r.URL.Path
-	// ctx := log.WithField("path", path)
 	if routers := m.routers[r.Method]; routers != nil {
 		if handler, params := routers.Lookup(path); handler != nil {
 			if len(params) > 0 {
 				ctx := context.WithValue(r.Context(), keyParams, params)
 				r = r.WithContext(ctx)
 			}
-			// name := runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()
-			// ctx.WithField("name", name).Debug("found handler")
 			handler.(http.Handler).ServeHTTP(w, r)
 			return
 		}
@@ -71,8 +68,6 @@ func (m *ServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if r.Method != http.MethodGet && r.Method != http.MethodHead {
 				status = http.StatusPermanentRedirect
 			}
-			// name := runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()
-			// ctx.WithField("name", name).Debug("redirect to handler")
 			if m.Redirect != nil {
 				m.Redirect(w, r, status, path)
 			} else {
